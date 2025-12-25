@@ -1,25 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { notesAPI } from '../services/api';
 
-interface Note {
-  id: number;
-  userEmail: string;
-  title: string;
-  description: string;
-  lastUpdated: string;
-}
-
-const NotesPage: React.FC = () => {
+const NotesPage = () => {
   const [email, setEmail] = useState('');
-  const [loggedInEmail, setLoggedInEmail] = useState<string | null>(null);
-  const [notes, setNotes] = useState<Note[]>([]);
+  const [loggedInEmail, setLoggedInEmail] = useState(null);
+  const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [editingNote, setEditingNote] = useState<Note | null>(null);
+  const [editingNote, setEditingNote] = useState(null);
   const [formData, setFormData] = useState({ title: '', description: '' });
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     if (!email.trim()) {
       setError('Please enter a valid email address');
@@ -31,14 +23,14 @@ const NotesPage: React.FC = () => {
       const response = await notesAPI.getNotes(email);
       setNotes(response.data);
       setLoggedInEmail(email);
-    } catch (err: any) {
+    } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch notes. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCreateNote = async (e: React.FormEvent) => {
+  const handleCreateNote = async (e) => {
     e.preventDefault();
     if (!formData.title.trim()) {
       setError('Title is required');
@@ -48,7 +40,7 @@ const NotesPage: React.FC = () => {
     setError(null);
     try {
       const newNote = {
-        userEmail: loggedInEmail!,
+        userEmail: loggedInEmail,
         title: formData.title,
         description: formData.description,
       };
@@ -56,14 +48,14 @@ const NotesPage: React.FC = () => {
       setNotes([...notes, response.data]);
       setFormData({ title: '', description: '' });
       setShowForm(false);
-    } catch (err: any) {
+    } catch (err) {
       setError(err.response?.data?.message || 'Failed to create note. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleUpdateNote = async (e: React.FormEvent) => {
+  const handleUpdateNote = async (e) => {
     e.preventDefault();
     if (!formData.title.trim()) {
       setError('Title is required');
@@ -73,43 +65,43 @@ const NotesPage: React.FC = () => {
     setError(null);
     try {
       const updatedNote = {
-        userEmail: loggedInEmail!,
+        userEmail: loggedInEmail,
         title: formData.title,
         description: formData.description,
       };
-      const response = await notesAPI.updateNote(editingNote!.id, updatedNote);
-      setNotes(notes.map(note => note.id === editingNote!.id ? response.data : note));
+      const response = await notesAPI.updateNote(editingNote.id, updatedNote);
+      setNotes(notes.map(note => note.id === editingNote.id ? response.data : note));
       setFormData({ title: '', description: '' });
       setEditingNote(null);
       setShowForm(false);
-    } catch (err: any) {
+    } catch (err) {
       setError(err.response?.data?.message || 'Failed to update note. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteNote = async (id: number) => {
+  const handleDeleteNote = async (id) => {
     if (!window.confirm('Are you sure you want to delete this note?')) return;
     setLoading(true);
     setError(null);
     try {
       await notesAPI.deleteNote(id);
       setNotes(notes.filter(note => note.id !== id));
-    } catch (err: any) {
+    } catch (err) {
       setError(err.response?.data?.message || 'Failed to delete note. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEditClick = (note: Note) => {
+  const handleEditClick = (note) => {
     setEditingNote(note);
     setFormData({ title: note.title, description: note.description || '' });
     setShowForm(true);
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString();
   };
 

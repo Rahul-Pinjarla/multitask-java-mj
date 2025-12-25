@@ -1,21 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { issuesAPI } from '../services/api';
 
-interface Issue {
-  id: number;
-  userEmail: string;
-  createdDate: string;
-  title: string;
-  category: string;
-  description: string;
-  imageUrl?: string;
-}
-
-const SupportPage: React.FC = () => {
+const SupportPage = () => {
   const [showForm, setShowForm] = useState(false);
-  const [issues, setIssues] = useState<Issue[]>([]);
+  const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [pageSize] = useState(10);
@@ -40,7 +30,7 @@ const SupportPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const params: any = {
+      const params = {
         page: currentPage,
         size: pageSize,
         sortBy: 'createdDate',
@@ -53,14 +43,14 @@ const SupportPage: React.FC = () => {
       const response = await issuesAPI.getIssues(params);
       setIssues(response.data.content);
       setTotalPages(response.data.totalPages);
-    } catch (err: any) {
+    } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch issues. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.userEmail.trim() || !formData.title.trim() || !formData.description.trim()) {
       setError('Please fill in all required fields');
@@ -79,33 +69,33 @@ const SupportPage: React.FC = () => {
       });
       setShowForm(false);
       fetchIssues();
-    } catch (err: any) {
+    } catch (err) {
       setError(err.response?.data?.message || 'Failed to create issue. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleFilterChange = (field: string, value: string) => {
+  const handleFilterChange = (field, value) => {
     setFilters({ ...filters, [field]: value });
     setCurrentPage(0);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this issue?')) return;
     setLoading(true);
     setError(null);
     try {
       await issuesAPI.deleteIssue(id);
       fetchIssues();
-    } catch (err: any) {
+    } catch (err) {
       setError(err.response?.data?.message || 'Failed to delete issue. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString();
   };
 

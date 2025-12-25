@@ -1,21 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { residentsAPI } from '../services/api';
 
-interface Resident {
-  id: number;
-  name: string;
-  state: string;
-  gender: string;
-  flatNumber: string;
-  rentStatus: string;
-}
-
-const ResidentsPage: React.FC = () => {
+const ResidentsPage = () => {
   const [showForm, setShowForm] = useState(false);
-  const [editingResident, setEditingResident] = useState<Resident | null>(null);
-  const [residents, setResidents] = useState<Resident[]>([]);
+  const [editingResident, setEditingResident] = useState(null);
+  const [residents, setResidents] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [pageSize] = useState(10);
@@ -42,7 +33,7 @@ const ResidentsPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const params: any = {
+      const params = {
         page: currentPage,
         size: pageSize,
         sortBy: 'id',
@@ -57,14 +48,14 @@ const ResidentsPage: React.FC = () => {
       const response = await residentsAPI.getResidents(params);
       setResidents(response.data.content);
       setTotalPages(response.data.totalPages);
-    } catch (err: any) {
+    } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch residents. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.state.trim() || !formData.gender.trim() || 
         !formData.flatNumber.trim() || !formData.rentStatus.trim()) {
@@ -89,14 +80,14 @@ const ResidentsPage: React.FC = () => {
       setShowForm(false);
       setEditingResident(null);
       fetchResidents();
-    } catch (err: any) {
+    } catch (err) {
       setError(err.response?.data?.message || 'Failed to save resident. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEditClick = (resident: Resident) => {
+  const handleEditClick = (resident) => {
     setEditingResident(resident);
     setFormData({
       name: resident.name,
@@ -108,26 +99,26 @@ const ResidentsPage: React.FC = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this resident?')) return;
     setLoading(true);
     setError(null);
     try {
       await residentsAPI.deleteResident(id);
       fetchResidents();
-    } catch (err: any) {
+    } catch (err) {
       setError(err.response?.data?.message || 'Failed to delete resident. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleFilterChange = (field: string, value: string) => {
+  const handleFilterChange = (field, value) => {
     setFilters({ ...filters, [field]: value });
     setCurrentPage(0);
   };
 
-  const handleRowClick = (resident: Resident) => {
+  const handleRowClick = (resident) => {
     setEditingResident(resident);
     setFormData({
       name: resident.name,
